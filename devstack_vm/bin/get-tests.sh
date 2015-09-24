@@ -16,7 +16,7 @@ array_to_regex()
     echo $regex
 }
 
-project=$1
+project=${1:-"hyperv-networking"}
 tests_dir=$2
 test_suite=${3:-"default"}
 
@@ -40,10 +40,7 @@ if [ ! "$exclude_regex" ]; then
     exclude_regex='^$'
 fi
 
-
-if [[ $project == "nova" ]]; then
-    testr list-tests | grep -v $exclude_regex
-elif [[ $project == "neutron" ]]; then
+if [[ $project == "hyperv-networking" ]]; then
 
     testr list-tests | grep "tempest.api.network" | grep -v $exclude_regex
 else
