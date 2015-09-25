@@ -31,7 +31,7 @@ then
 fi
 echo FLOATING_IP=$FLOATING_IP >> /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
 
-NAME="ntr-dvs-$ZUUL_CHANGE-$ZUUL_PATCHSET"
+NAME="hv-net-dvs-$ZUUL_CHANGE-$ZUUL_PATCHSET"
 if [[ ! -z $IS_DEBUG_JOB ]] && [[ $IS_DEBUG_JOB = "yes" ]]; then
 	NAME="$NAME-dbg"
 fi
