@@ -1,7 +1,7 @@
 Param(
     [Parameter(Mandatory=$true)][string]$devstackIP,
     [string]$branchName='master',
-    [string]$buildFor='openstack/hyperv-networking'
+    [string]$buildFor='stackforge/networking-hyperv'
 )
 
 $projectName = $buildFor.split('/')[-1]
@@ -9,10 +9,10 @@ $projectName = $buildFor.split('/')[-1]
 . "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\config.ps1"
 . "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\utils.ps1"
 
-$hasProject = Test-Path $buildDir\$projectName
+$hasProject = Test-Path $openstackDir\build\$buildFor
 $hasNova = Test-Path $buildDir\nova
-$hasNetworkinghv = Test-Path $buildDir\hyperv-networking
-$hasNetworkinghvTemplate = Test-Path $networkinghvTemplate
+$hasNeutron = Test-Path $buildDir\neutron
+$hasNeutronTemplate = Test-Path $neutronTemplate
 $hasNovaTemplate = Test-Path $novaTemplate
 $hasConfigDir = Test-Path $configDir
 $hasBinDir = Test-Path $binDir
@@ -31,9 +31,9 @@ find-links =
 $ErrorActionPreference = "SilentlyContinue"
 
 # Do a selective teardown
-Write-Host "Ensuring nova and hyperv-networking services are stopped."
+Write-Host "Ensuring nova and neutron services are stopped."
 Stop-Service -Name nova-compute -Force
-Stop-Service -Name hyperv-networking -Force
+Stop-Service -Name neutron-hyperv-agent -Force
 
 Write-Host "Stopping any possible python processes left."
 Stop-Process -Name python -Force
@@ -42,8 +42,8 @@ if (Get-Process -Name nova-compute){
     Throw "Nova is still running on this host"
 }
 
-if (Get-Process -Name hyperv-networking){
-    Throw "hyperv-networking is still running on this host"
+if (Get-Process -Name neutron-hyperv-agent){
+    Throw "Neutron is still running on this host"
 }
 
 if (Get-Process -Name python){
@@ -52,9 +52,9 @@ if (Get-Process -Name python){
 
 $ErrorActionPreference = "Stop"
 
-if (-not (Get-Service hyperv-networking -ErrorAction SilentlyContinue))
+if (-not (Get-Service neutron-hyperv-agent -ErrorAction SilentlyContinue))
 {
-    Throw "hyperv-networking Service not registered"
+    Throw "Neutron Hyper-V Agent Service not registered"
 }
 
 if (-not (get-service nova-compute -ErrorAction SilentlyContinue))
@@ -66,8 +66,8 @@ if ($(Get-Service nova-compute).Status -ne "Stopped"){
     Throw "Nova service is still running"
 }
 
-if ($(Get-Service hyperv-networking).Status -ne "Stopped"){
-    Throw "hyperv-networking service is still running"
+if ($(Get-Service neutron-hyperv-agent).Status -ne "Stopped"){
+    Throw "Neutron service is still running"
 }
 
 Write-Host "Cleaning up the config folder."
@@ -116,7 +116,21 @@ git config --global user.email "hyper-v_ci@microsoft.com"
 git config --global user.name "Hyper-V CI"
 
 
-if ($buildFor -eq "stackforge/networking-hyperv"){
+if ($buildFor -eq "openstack/nova"){
+    ExecRetry {
+        GitClonePull "$buildDir\neutron" "https://github.com/openstack/neutron.git" $branchName
+    }
+    ExecRetry {
+        GitClonePull "$buildDir\networking-hyperv" "https://github.com/stackforge/networking-hyperv.git" "master"
+    }
+}elseif ($buildFor -eq "openstack/neutron" -or $buildFor -eq "openstack/quantum"){
+    ExecRetry {
+        GitClonePull "$buildDir\nova" "https://github.com/openstack/nova.git" $branchName
+    }
+    ExecRetry {
+        GitClonePull "$buildDir\networking-hyperv" "https://github.com/stackforge/networking-hyperv.git" "master"
+    }
+}elseif ($buildFor -eq "stackforge/networking-hyperv"){
     ExecRetry {
         GitClonePull "$buildDir\nova" "https://github.com/openstack/nova.git" $branchName
     }
@@ -191,7 +205,7 @@ function cherry_pick($commit){
 }
 
 ExecRetry {
-    & pip install -e C:\OpenStack\build\openstack\networking-hyperv
+    & pip install -e C:\OpenStack\build\stackforge\networking-hyperv
     if ($LastExitCode) { Throw "Failed to install networking-hyperv from repo" }
     popd
 }
@@ -227,14 +241,14 @@ if (($branchName.ToLower().CompareTo($('stable/juno').ToLower()) -eq 0) -or ($br
 }
 
 $novaConfig = (gc "$templateDir\nova.conf").replace('[DEVSTACK_IP]', "$devstackIP").Replace('[LOGDIR]', "$openstackLogs").Replace('[RABBITUSER]', $rabbitUser)
-$networkinghvConfig = (gc "$templateDir\neutron_hyperv_agent.conf").replace('[DEVSTACK_IP]', "$devstackIP").Replace('[LOGDIR]', "$openstackLogs").Replace('[RABBITUSER]', $rabbitUser)
+$neutronConfig = (gc "$templateDir\neutron_hyperv_agent.conf").replace('[DEVSTACK_IP]', "$devstackIP").Replace('[LOGDIR]', "$openstackLogs").Replace('[RABBITUSER]', $rabbitUser)
 
 Set-Content C:\OpenStack\etc\nova.conf $novaConfig
 if ($? -eq $false){
     Throw "Error writting $templateDir\nova.conf"
 }
 
-Set-Content C:\OpenStack\etc\neutron_hyperv_agent.conf $networkinghvConfig
+Set-Content C:\OpenStack\etc\neutron_hyperv_agent.conf $neutronConfig
 if ($? -eq $false){
     Throw "Error writting neutron_hyperv_agent.conf"
 }
@@ -247,8 +261,8 @@ if ($hasNovaExec -eq $false){
     Throw "No nova exe found"
 }
 
-$hasNetworkinghvExec = Test-Path "c:\Python27\Scripts\hyperv-networking.exe"
-if ($hasNetworkinghvExec -eq $false){
+$hasNeutronExec = Test-Path "c:\Python27\Scripts\neutron-hyperv-agent.exe"
+if ($hasNeutronExec -eq $false){
     Throw "No neutron exe found"
 }
 
@@ -295,26 +309,26 @@ if ($(get-service nova-compute).Status -eq "Stopped")
     }
 }
 
-Write-Host "Starting hyperv-networking service"
+Write-Host "Starting neutron-hyperv-agent service"
 Try
 {
-    Start-Service hyperv-networking
+    Start-Service neutron-hyperv-agent
 }
 Catch
 {
-    $proc = Start-Process -PassThru -RedirectStandardError "$openstackLogs\process_error.txt" -RedirectStandardOutput "$openstackLogs\process_output.txt" -FilePath "$pythonDir\Scripts\hyperv-networking.exe" -ArgumentList "--config-file $configDir\neutron_hyperv_agent.conf"
+    $proc = Start-Process -PassThru -RedirectStandardError "$openstackLogs\process_error.txt" -RedirectStandardOutput "$openstackLogs\process_output.txt" -FilePath "$pythonDir\Scripts\neutron-hyperv-agent.exe" -ArgumentList "--config-file $configDir\neutron_hyperv_agent.conf"
     Start-Sleep -s 30
     if (! $proc.HasExited) {Stop-Process -Id $proc.Id -Force}
-    Throw "Can not start the hyperv-networking service"
+    Throw "Can not start the neutron-hyperv-agent service"
 }
 Start-Sleep -s 30
-if ($(get-service hyperv-networking).Status -eq "Stopped")
+if ($(get-service neutron-hyperv-agent).Status -eq "Stopped")
 {
     Write-Host "We try to start:"
-    Write-Host Start-Process -PassThru -RedirectStandardError "$openstackLogs\process_error.txt" -RedirectStandardOutput "$openstackLogs\process_output.txt" -FilePath "$pythonDir\Scripts\hyperv-networking.exe" -ArgumentList "--config-file $configDir\neutron_hyperv_agent.conf"
+    Write-Host Start-Process -PassThru -RedirectStandardError "$openstackLogs\process_error.txt" -RedirectStandardOutput "$openstackLogs\process_output.txt" -FilePath "$pythonDir\Scripts\neutron-hyperv-agent.exe" -ArgumentList "--config-file $configDir\neutron_hyperv_agent.conf"
     Try
     {
-    	$proc = Start-Process -PassThru -RedirectStandardError "$openstackLogs\process_error.txt" -RedirectStandardOutput "$openstackLogs\process_output.txt" -FilePath "$pythonDir\Scripts\hyperv-networking.exe" -ArgumentList "--config-file $configDir\neutron_hyperv_agent.conf"
+    	$proc = Start-Process -PassThru -RedirectStandardError "$openstackLogs\process_error.txt" -RedirectStandardOutput "$openstackLogs\process_output.txt" -FilePath "$pythonDir\Scripts\neutron-hyperv-agent.exe" -ArgumentList "--config-file $configDir\neutron_hyperv_agent.conf"
     }
     Catch
     {
@@ -328,6 +342,6 @@ if ($(get-service hyperv-networking).Status -eq "Stopped")
     }
     else
     {
-    	Throw "Can not start the hyperv-networking service. The manual run failed as well."
+    	Throw "Can not start the neutron-hyperv-agent service. The manual run failed as well."
     }
 }
