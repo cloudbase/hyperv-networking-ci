@@ -31,12 +31,6 @@ then
 fi
 echo FLOATING_IP=$FLOATING_IP >> /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
 
-NAME="hv-net-dvs-$ZUUL_CHANGE-$ZUUL_PATCHSET"
-if [[ ! -z $IS_DEBUG_JOB ]] && [[ $IS_DEBUG_JOB = "yes" ]]; then
-	NAME="$NAME-dbg"
-fi
-export NAME=$NAME
-
 echo NAME=$NAME >> /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
 
 NET_ID=$(nova net-list | grep private| awk '{print $2}')
@@ -48,7 +42,7 @@ echo NET_ID=$NET_ID
 
 echo "Deploying devstack $NAME"
 
-devstack_image="devstack-62v3"
+devstack_image="devstack-63v1"
 
 echo "Image used is: $devstack_image"
 echo "Deploying devstack $NAME"
