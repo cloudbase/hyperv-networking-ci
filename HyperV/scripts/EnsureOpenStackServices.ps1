@@ -351,10 +351,10 @@ $novaServiceDescription = "OpenStack nova Compute Service"
 $novaServiceExecutable = "$virtualenv\Scripts\nova-compute.exe"
 $novaServiceConfig = "$configDir\nova.conf"
 
-$networkinghvServiceName = "hyperv-networking"
-$networkinghvServiceDescription = "OpenStack Hyperv-Networking Service"
-$networkinghvServiceExecutable = "$virtualenv\Scripts\hyperv-networking.exe"
-$networkinghvServiceConfig = "$configDir\neutron_hyperv_agent.conf"
+$neutronServiceName = "neutron-hyperv-agent"
+$neutronServiceDescription = "OpenStack Neutron Hyper-V Agent Service"
+$neutronServiceExecutable = "$virtualenv\Scripts\neutron-hyperv-agent.exe"
+$neutronServiceConfig = "$configDir\neutron_hyperv_agent.conf"
 
 function SetUserLogonAsServiceRights($UserName)
 {
@@ -498,4 +498,4 @@ Function Check-Service
 
 Check-Service $novaServiceName $novaServiceDescription $novaServiceExecutable $novaServiceConfig
 
-Check-Service $networkinghvServiceName $networkinghvServiceDescription $networkinghvServiceExecutable $networkinghvServiceConfig
+Check-Service $neutronServiceName $neutronServiceDescription $neutronServiceExecutable $neutronServiceConfig

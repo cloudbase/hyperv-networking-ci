@@ -1,2 +1,2 @@
-# hyperv-networking-ci
-CI for networking-hyperv project
+# neutron-ci
+Hyper-V Neutron CI
