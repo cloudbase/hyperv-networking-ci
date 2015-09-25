@@ -1,7 +1,7 @@
 # Loading config
 
-. "C:\OpenStack\neutron-ci\HyperV\scripts\config.ps1"
-. "C:\OpenStack\neutron-ci\HyperV\scripts\utils.ps1"
+. "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\config.ps1"
+. "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\utils.ps1"
 
 # end Loading config
 
@@ -52,7 +52,7 @@ Get-VM | where {$_.State -eq 'Running' -or $_.State -eq 'Paused'} | Stop-Vm -For
 Remove-VM * -Force
 
 Write-Host "Cleaning the build folder."
-Remove-Item -Recurse -Force $buildDir\*
+Remove-Item -Recurse -Force $openstackDir\build\*
 Write-Host "Cleaning the virtualenv folder."
 Remove-Item -Recurse -Force $virtualenv
 Write-Host "Cleaning the logs folder."

@@ -1,15 +1,15 @@
 Param(
     [Parameter(Mandatory=$true)][string]$devstackIP,
     [string]$branchName='master',
-    [string]$buildFor='openstack/neutron'
+    [string]$buildFor='stackforge/networking-hyperv'
 )
 
 $projectName = $buildFor.split('/')[-1]
 
-. "C:\OpenStack\neutron-ci\HyperV\scripts\config.ps1"
-. "C:\OpenStack\neutron-ci\HyperV\scripts\utils.ps1"
+. "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\config.ps1"
+. "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\utils.ps1"
 
-$hasProject = Test-Path $buildDir\$projectName
+$hasProject = Test-Path $openstackDir\build\$buildFor
 $hasNova = Test-Path $buildDir\nova
 $hasNeutron = Test-Path $buildDir\neutron
 $hasNeutronTemplate = Test-Path $neutronTemplate
@@ -205,7 +205,7 @@ function cherry_pick($commit){
 }
 
 ExecRetry {
-    & pip install -e C:\OpenStack\build\openstack\networking-hyperv
+    & pip install -e C:\OpenStack\build\stackforge\networking-hyperv
     if ($LastExitCode) { Throw "Failed to install networking-hyperv from repo" }
     popd
 }

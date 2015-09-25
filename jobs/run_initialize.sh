@@ -20,7 +20,7 @@
 source /home/jenkins-slave/tools/keystonerc_admin
 
 # Loading all the needed functions
-source /usr/local/src/neutron-ci/jobs/library.sh
+source /usr/local/src/hyperv-networking-ci/jobs/library.sh
 
 DEVSTACK_SSH_KEY=/home/jenkins-slave/tools/admin-msft.pem
 
@@ -136,13 +136,13 @@ run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY 'DEBIAN_FRONTEND=no
 run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY "sudo ln -fs /usr/share/zoneinfo/UTC /etc/localtime" 1
 
 # copy files to devstack
-scp -v -r -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" -i $DEVSTACK_SSH_KEY /usr/local/src/neutron-ci/devstack_vm/* ubuntu@$FLOATING_IP:/home/ubuntu/
+scp -v -r -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" -i $DEVSTACK_SSH_KEY /usr/local/src/hyperv-networking-ci/devstack_vm/* ubuntu@$FLOATING_IP:/home/ubuntu/
 
 ZUUL_SITE=`echo "$ZUUL_URL" |sed 's/.\{2\}$//'`
 echo ZUUL_SITE=$ZUUL_SITE >> /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
 
 set +e
-VLAN_RANGE=`/usr/local/src/neutron-ci/vlan_allocation.py -a $NAME`
+VLAN_RANGE=`/usr/local/src/hyperv-networking-ci/vlan_allocation.py -a $NAME`
 if [ ! -z "$VLAN_RANGE" ]
 then
   run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY "sed -i 's/TENANT_VLAN_RANGE.*/TENANT_VLAN_RANGE='$VLAN_RANGE'/g' /home/ubuntu/devstack/local.conf" 3

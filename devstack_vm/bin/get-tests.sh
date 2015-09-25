@@ -44,7 +44,8 @@ fi
 if [[ $project == "nova" ]]; then
     testr list-tests | grep -v $exclude_regex
 elif [[ $project == "neutron" ]]; then
-
+    testr list-tests | grep "tempest.api.network" | grep -v $exclude_regex
+elif [[ $project == "networking-hyperv" ]]; then
     testr list-tests | grep "tempest.api.network" | grep -v $exclude_regex
 else
     echo "ERROR: Cannot test for project $project"
