@@ -86,9 +86,9 @@ fi
 if [ -d "$PROJECT_DIR" ]
 then
 	rm -rf "$PROJECT_DIR"
-        mkdir -p  "$PROJECT_DIR" || exit_error "Failed to create project dir"
 fi
 
+mkdir -p  "$PROJECT_DIR" || exit_error "Failed to create project dir"
 cd "$PROJECT_DIR" || exit_error "Failed to enter project build dir"
 
 set -x
