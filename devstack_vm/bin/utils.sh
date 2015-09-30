@@ -213,18 +213,19 @@ rotate_log () {
         CNT=${limit}
         let P_CNT=CNT-1
         if [ -f ${file}.${limit} ] ; then
-                rm ${file}.${limit}
+            rm ${file}.${limit}
         fi
 
-        while [[ $CNT -ne 1 ]] ; do
+        for (( CNT=$limit; CNT > 1; CNT-- )) ; do
             if [ -f ${file}.${P_CNT} ] ; then
                 mv ${file}.${P_CNT} ${file}.${CNT}
             fi
-            let CNT=CNT-1
             let P_CNT=P_CNT-1
         done
 
+        # Renames current log to .1
         mv $file ${file}.1
         echo "" > $file
     fi
 }
+
