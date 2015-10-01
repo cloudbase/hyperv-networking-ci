@@ -35,8 +35,8 @@ LOCALRC="/home/ubuntu/devstack/localrc"
 LOCALCONF="/home/ubuntu/devstack/local.conf"
 PBR_LOC="/opt/stack/pbr"
 # Clean devstack logs
-rm -f "$DEVSTACK_LOGS/*"
-rm -rf "$PBR_LOC"
+sudo rm -f "$DEVSTACK_LOGS/*"
+sudo rm -rf "$PBR_LOC"
 
 MYIP=$(/sbin/ifconfig eth0 2>/dev/null| grep "inet addr:" 2>/dev/null| sed 's/.*inet addr://g;s/ .*//g' 2>/dev/null)
 
