@@ -210,22 +210,19 @@ rotate_log () {
     local file="$1"
     local limit=$2
     if [ -f $file ] ; then
-        CNT=${limit}
-        let P_CNT=CNT-1
         if [ -f ${file}.${limit} ] ; then
             rm ${file}.${limit}
         fi
 
         for (( CNT=$limit; CNT > 1; CNT-- )) ; do
-            if [ -f ${file}.${P_CNT} ] ; then
-                mv ${file}.${P_CNT} ${file}.${CNT}
+            if [ -f ${file}.$(($CNT-1)) ]; then
+                mv ${file}.$(($CNT-1)) ${file}.${CNT} || echo "Failed to run: mv ${file}.$(($CNT-1)) ${file}.${CNT}"
             fi
-            let P_CNT=P_CNT-1
         done
 
         # Renames current log to .1
+	echo "test andrei $file"
         mv $file ${file}.1
-        echo "" > $file
+        touch $file
     fi
 }
-

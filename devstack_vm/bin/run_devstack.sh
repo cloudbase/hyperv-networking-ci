@@ -35,8 +35,8 @@ LOCALRC="/home/ubuntu/devstack/localrc"
 LOCALCONF="/home/ubuntu/devstack/local.conf"
 PBR_LOC="/opt/stack/pbr"
 # Clean devstack logs
-rm -f "$DEVSTACK_LOGS/*"
-rm -rf "$PBR_LOC"
+sudo rm -f "$DEVSTACK_LOGS/*"
+sudo rm -rf "$PBR_LOC"
 
 MYIP=$(/sbin/ifconfig eth0 2>/dev/null| grep "inet addr:" 2>/dev/null| sed 's/.*inet addr://g;s/ .*//g' 2>/dev/null)
 
@@ -69,7 +69,7 @@ STACK_LOG="/opt/stack/logs/stack.sh.txt"
 # keep this many rotated stack.sh logs
 STACK_ROTATE_LIMIT=5
 rotate_log $STACK_LOG $STACK_ROTATE_LIMIT
-
+echo "Rotate logs return value was: $?"
 #set -o pipefail
 #./stack.sh 2>&1 | tee /opt/stack/logs/stack.sh.txt
 nohup ./stack.sh > $STACK_LOG 2>&1 &
