@@ -69,7 +69,7 @@ STACK_LOG="/opt/stack/logs/stack.sh.txt"
 # keep this many rotated stack.sh logs
 STACK_ROTATE_LIMIT=5
 rotate_log $STACK_LOG $STACK_ROTATE_LIMIT
-echo "Rotate logs return value was: $?"
+
 #set -o pipefail
 #./stack.sh 2>&1 | tee /opt/stack/logs/stack.sh.txt
 nohup ./stack.sh > $STACK_LOG 2>&1 &

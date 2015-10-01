@@ -221,7 +221,6 @@ rotate_log () {
         done
 
         # Renames current log to .1
-	echo "test andrei $file"
         mv $file ${file}.1
         touch $file
     fi
