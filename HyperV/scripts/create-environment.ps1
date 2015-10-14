@@ -180,7 +180,6 @@ Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 & pip install -U wmi
 & pip install --use-wheel --no-index --find-links=http://dl.openstack.tld/wheels cffi
 & pip install --use-wheel --no-index --find-links=http://dl.openstack.tld/wheels numpy
-& pip install -U oslo.log==1.11.0
 popd
 
 $hasPipConf = Test-Path "$env:APPDATA\pip"
@@ -195,7 +194,8 @@ Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 
 cp $templateDir\distutils.cfg C:\Python27\Lib\distutils\distutils.cfg
 
-function cherry_pick($commit){
+function cherry_pick($commit) {
+    $eapSet = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
     git cherry-pick $commit
 
@@ -203,6 +203,7 @@ function cherry_pick($commit){
         echo "Ignoring failed git cherry-pick $commit"
         git checkout --force
     }
+    $ErrorActionPreference = $eapSet
 }
 
 ExecRetry {
@@ -219,8 +220,10 @@ ExecRetry {
 
 ExecRetry {
     pushd C:\OpenStack\build\openstack\nova
-    git fetch https://review.openstack.org/openstack/nova refs/changes/20/213720/4
-    git cherry-pick FETCH_HEAD
+    git fetch https://review.openstack.org/openstack/nova refs/changes/20/213720/5
+    cherry_pick FETCH_HEAD
+    git fetch https://review.openstack.org/openstack/nova refs/changes/37/234437/4
+    cherry_pick FETCH_HEAD
     & pip install -e C:\OpenStack\build\openstack\nova
     if ($LastExitCode) { Throw "Failed to install nova fom repo" }
     popd
