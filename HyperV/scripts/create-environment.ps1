@@ -21,9 +21,11 @@ $hasQemuImg = Test-Path $binDir\qemu-img.exe
 
 $pip_conf_content = @"
 [global]
-index-url = http://dl.openstack.tld:8080/cloudbase/CI/+simple/
+index-url = http://dl.openstack.tld:8080/root/pypi/+simple/
 [install]
 trusted-host = dl.openstack.tld
+find-links = 
+    http://dl.openstack.tld/wheels
 "@
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -176,8 +178,8 @@ Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 & easy_install -U pip
 & pip install -U setuptools
 & pip install -U wmi
-& pip install cffi
-& pip install numpy
+& pip install --use-wheel --no-index --find-links=http://dl.openstack.tld/wheels cffi
+& pip install --use-wheel --no-index --find-links=http://dl.openstack.tld/wheels numpy
 popd
 
 $hasPipConf = Test-Path "$env:APPDATA\pip"
