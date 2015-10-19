@@ -22,8 +22,6 @@ source /home/jenkins-slave/tools/keystonerc_admin
 # Loading all the needed functions
 source /usr/local/src/hyperv-networking-ci/jobs/library.sh
 
-DEVSTACK_SSH_KEY=/home/jenkins-slave/tools/admin-msft.pem
-
 FLOATING_IP=$(nova floating-ip-create public | awk '{print $2}'|sed '/^$/d' | tail -n 1) || echo `date -u +%H:%M:%S` "Failed to alocate floating IP"
 if [ -z "$FLOATING_IP" ]
 then
@@ -42,7 +40,7 @@ echo NET_ID=$NET_ID
 
 echo "Deploying devstack $NAME"
 
-devstack_image="devstack-63v1"
+devstack_image="devstack-65v1"
 
 echo "Image used is: $devstack_image"
 echo "Deploying devstack $NAME"
@@ -178,19 +176,38 @@ run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY "sudo pip install -
 # make local.sh executable
 run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY "chmod a+x /home/ubuntu/devstack/local.sh"
 
-# run devstack
-run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY "source /home/ubuntu/keystonerc && /home/ubuntu/bin/run_devstack.sh" 5
 
-# run post_stack
-run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY "source /home/ubuntu/keystonerc && /home/ubuntu/bin/post_stack.sh" 5
-
-# join Hyper-V servers
+# Preparing share for HyperV logs
 run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY 'mkdir -p /openstack/logs; chmod 777 /openstack/logs; sudo chown nobody:nogroup /openstack/logs'
-echo `date -u +%H:%M:%S` "Joining Hyper-V node: $hyperv01"
-join_hyperv $hyperv01 $WIN_USER $WIN_PASS
 
-echo `date -u +%H:%M:%S` "Joining Hyper-V node: $hyperv02"
-join_hyperv $hyperv02 $WIN_USER $WIN_PASS
+# Building devstack as a threaded job
+echo `date -u +%H:%M:%S` "Started to build devstack as a threaded job"
+nohup /usr/local/src/hyperv-networking-ci/jobs/build_devstack.sh > /home/jenkins-slave/logs/devstack-build-log-$ZUUL_UUID 2>&1 &
+pid_devstack=$!
+
+# Building and joining HyperV nodes
+echo `date -u +%H:%M:%S` "Started building & joining Hyper-V node: $hyperv01"
+nohup /usr/local/src/hyperv-networking-ci/jobs/build_hyperv.sh $hyperv01 > /home/jenkins-slave/logs/hyperv-build-log-$ZUUL_UUID-$hyperv01 2>&1 &
+pid_hv01=$!
+
+echo `date -u +%H:%M:%S` "Started building & joining Hyper-V node: $hyperv02"
+nohup /usr/local/src/hyperv-networking-ci/jobs/build_hyperv.sh $hyperv02 > /home/jenkins-slave/logs/hyperv-build-log-$ZUUL_UUID-$hyperv02 2>&1 &
+pid_hv02=$!
+
+# Waiting for devstack threaded job to finish
+wait $pid_devstack
+cat /home/jenkins-slave/logs/devstack-build-log-$ZUUL_UUID
+
+# Wait for both nodes to finish building and joining
+wait $pid_hv01
+cat /home/jenkins-slave/logs/hyperv-build-log-$ZUUL_UUID-$hyperv01
+
+wait $pid_hv02
+cat /home/jenkins-slave/logs/hyperv-build-log-$ZUUL_UUID-$hyperv02
+
+post_build_restart_hyperv_services $hyperv01 $WIN_USER $WIN_PASS
+post_build_restart_hyperv_services $hyperv02 $WIN_USER $WIN_PASS
+
 
 #check for nova join (must equal 2)
 run_ssh_cmd_with_retry ubuntu@$FLOATING_IP $DEVSTACK_SSH_KEY 'source /home/ubuntu/keystonerc; NOVA_COUNT=$(nova service-list | grep nova-compute | grep -c -w up); if [ "$NOVA_COUNT" != 2 ];then nova service-list; exit 1;fi' 12
