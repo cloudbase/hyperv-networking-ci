@@ -1,8 +1,8 @@
 #!/bin/bash
 
-project=${1:-"openstack/nova"}
+project=${1:-"openstack/networking-hyperv"}
 tests_dir=${2:-"/opt/stack/tempest"}
-parallel_tests=${3:-8}
+parallel_tests=${3:-12}
 max_attempts=${4:-3}
 test_suite=${5:-"default"}
 log_file=${6:-"/home/ubuntu/tempest/subunit-output.log"}
@@ -37,7 +37,7 @@ fi
 $basedir/parallel-test-runner.sh $tests_file $tests_dir $log_file \
     $parallel_tests $max_attempts || true
 
-if [[ $project == "nova" ]]; then
+if [[ $project == "compute-hyperv" ]]; then
     isolated_tests_file=$basedir/isolated-tests.txt
     if [ -f "$isolated_tests_file" ]; then
         echo "Running isolated tests from: $isolated_tests_file"

@@ -1,7 +1,7 @@
 Param(
     [Parameter(Mandatory=$true)][string]$devstackIP,
     [string]$branchName='master',
-    [string]$buildFor='stackforge/networking-hyperv'
+    [string]$buildFor='openstack/networking-hyperv'
 )
 
 $projectName = $buildFor.split('/')[-1]
@@ -114,21 +114,7 @@ git config --global user.email "hyper-v_ci@microsoft.com"
 git config --global user.name "Hyper-V CI"
 
 
-if ($buildFor -eq "openstack/nova"){
-    ExecRetry {
-        GitClonePull "$buildDir\neutron" "https://github.com/openstack/neutron.git" $branchName
-    }
-    ExecRetry {
-        GitClonePull "$buildDir\networking-hyperv" "https://github.com/stackforge/networking-hyperv.git" "master"
-    }
-}elseif ($buildFor -eq "openstack/neutron" -or $buildFor -eq "openstack/quantum"){
-    ExecRetry {
-        GitClonePull "$buildDir\nova" "https://github.com/openstack/nova.git" $branchName
-    }
-    ExecRetry {
-        GitClonePull "$buildDir\networking-hyperv" "https://github.com/stackforge/networking-hyperv.git" "master"
-    }
-}elseif ($buildFor -eq "stackforge/networking-hyperv"){
+if ($buildFor -eq "openstack/networking-hyperv"){
     ExecRetry {
         GitClonePull "$buildDir\nova" "https://github.com/openstack/nova.git" $branchName
     }
@@ -205,7 +191,7 @@ function cherry_pick($commit) {
 }
 
 ExecRetry {
-    & pip install -e C:\OpenStack\build\stackforge\networking-hyperv
+    & pip install -e C:\OpenStack\build\openstack\networking-hyperv
     if ($LastExitCode) { Throw "Failed to install networking-hyperv from repo" }
     popd
 }
