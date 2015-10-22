@@ -215,7 +215,7 @@ ExecRetry {
 }
 
 ExecRetry {
-    & pip install -e C:\OpenStack\build\openstack\compute-hyperv
+    & pip install C:\OpenStack\build\openstack\compute-hyperv
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
     popd
 }
