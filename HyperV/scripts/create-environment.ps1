@@ -121,6 +121,9 @@ if ($buildFor -eq "openstack/networking-hyperv"){
     ExecRetry {
         GitClonePull "$buildDir\neutron" "https://github.com/openstack/neutron.git" $branchName
     }
+    ExecRetry {
+        GitClonePull "$buildDir\compute-hyperv" "https://github.com/openstack/compute-hyperv.git" $branchName
+    }
 }else{
     Throw "Cannot build for project: $buildFor"
 }
@@ -199,6 +202,12 @@ ExecRetry {
 ExecRetry {
     & pip install -e C:\OpenStack\build\openstack\neutron
     if ($LastExitCode) { Throw "Failed to install neutron from repo" }
+    popd
+}
+
+ExecRetry {
+    & pip install -e C:\OpenStack\build\openstack\compute-hyperv
+    if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
     popd
 }
 
