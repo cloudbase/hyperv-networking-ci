@@ -22,7 +22,8 @@ sudo cp $HOME/.pip/pip.conf /root/.pip/
 sudo chown -R root:root /root/.pip
 
 # Update pip to latest
-sudo easy_install -U pip
+sudo easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip
+sudo pip install -U pip
 
 # Update six to latest version
 sudo pip install -U six
