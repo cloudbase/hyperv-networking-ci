@@ -162,7 +162,7 @@ else
 }
 Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 
-& easy_install -U pip
+& easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip -U pip
 & pip install -U setuptools
 & pip install -U wmi
 & pip install cffi
