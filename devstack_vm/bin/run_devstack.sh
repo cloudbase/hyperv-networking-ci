@@ -28,6 +28,7 @@ sudo pip install -U pip
 # Update six to latest version
 sudo pip install -U six
 sudo pip install -U kombu
+sudo pip install -U pbr
 
 DEVSTACK_LOGS="/opt/stack/logs/screen"
 LOCALRC="/home/ubuntu/devstack/localrc"
