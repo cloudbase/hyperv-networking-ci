@@ -166,7 +166,7 @@ Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 & pip install -U pip
 & pip install -U setuptools
 #& pip install -U wmi
- & pip install -U --pre "PyMI>=1.0.0.dev4" 
+& pip install -U --pre "PyMI>=1.0.0.dev4" 
 & pip install cffi
 & pip install numpy
 popd
