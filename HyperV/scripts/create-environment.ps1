@@ -124,9 +124,6 @@ if ($buildFor -eq "openstack/networking-hyperv"){
     ExecRetry {
         GitClonePull "$buildDir\compute-hyperv" "https://github.com/openstack/compute-hyperv.git" $branchName
     }
-    ExecRetry {
-        GitClonePull "$buildDir\requirements" "https://github.com/openstack/requirements.git" master
-    }
 }else{
     Throw "Cannot build for project: $buildFor"
 }

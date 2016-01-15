@@ -136,15 +136,23 @@ fi
 		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; Write-Host "[PRE_CLEAN] $env:computername has $targets.count" iSCSI portals'
 
 		echo `date -u +%H:%M:%S` "Started cleaning iSCSI targets and portals"
-		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; $ErrorActionPreference = "Continue" ;$targets[0].update();' &
-		pid_clean_hyperv01=$!
+		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; $ErrorActionPreference = "Continue"; $targets[0].update();' &
+		pid_clean_targets_hyperv01=$!
 
 		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; $ErrorActionPreference = "Continue" ;$targets[0].update();' &
-		pid_clean_hyperv02=$!
+		pid_clean_targets_hyperv02=$!
 
-		#Waiting for iSCSI cleanup
-		wait $pid_clean_hyperv01
-		wait $pid_clean_hyperv02
+		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS  'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; foreach ($target in $targets) {$target.remove()}' &
+		pid_clean_portals_hyperv01=$!
+
+		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS  'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; foreach ($target in $targets) {$target.remove()}' &
+		pid_clean_portals_hyperv02=$!
+
+		#Waiting for iSCSI clean-up
+		wait $pid_clean_targets_hyperv01
+		wait $pid_clean_targets_hyperv02
+		wait $pid_clean_portals_hyperv01
+		wait $pid_clean_portals_hyperv02
 
 		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; Write-Host "[POST_CLEAN] $env:computername has $targets.count" iSCSI targets'
 		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; Write-Host "[POST_CLEAN] $env:computername has $targets.count" iSCSI targets'
