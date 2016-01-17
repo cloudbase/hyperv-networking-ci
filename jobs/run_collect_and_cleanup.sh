@@ -96,6 +96,7 @@ if [ "$IS_DEBUG_JOB" != "yes" ]
 		echo "Deleting devstack floating IP"
 		nova floating-ip-delete "$FLOATING_IP"
 		rm -f /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
+	
 	else
 		TIMESTAMP=$(date +%d-%m-%Y_%H-%M)
         	echo "Creating logs destination folder"
@@ -128,4 +129,36 @@ if [ "$IS_DEBUG_JOB" != "yes" ]
                 rm -fv /home/jenkins-slave/logs/devstack-build-log-$ZUUL_UUID
 fi
 
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; Write-Host "[PRE_CLEAN] $env:computername has $targets.count" iSCSI targets'
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; Write-Host "[PRE_CLEAN] $env:computername has $targets.count" iSCSI targets'
+
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; Write-Host "[PRE_CLEAN] $env:computername has $targets.count" iSCSI portals'
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; Write-Host "[PRE_CLEAN] $env:computername has $targets.count" iSCSI portals'
+
+		echo `date -u +%H:%M:%S` "Started cleaning iSCSI targets and portals"
+		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; $ErrorActionPreference = "Continue"; $targets[0].update();' &
+		pid_clean_targets_hyperv01=$!
+
+		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; $ErrorActionPreference = "Continue" ;$targets[0].update();' &
+		pid_clean_targets_hyperv02=$!
+
+		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS  'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; foreach ($target in $targets) {$target.remove()}' &
+		pid_clean_portals_hyperv01=$!
+
+		nohup python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS  'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; foreach ($target in $targets) {$target.remove()}' &
+		pid_clean_portals_hyperv02=$!
+
+		#Waiting for iSCSI clean-up
+		wait $pid_clean_targets_hyperv01
+		wait $pid_clean_targets_hyperv02
+		wait $pid_clean_portals_hyperv01
+		wait $pid_clean_portals_hyperv02
+
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; Write-Host "[POST_CLEAN] $env:computername has $targets.count" iSCSI targets'
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitarget; Write-Host "[POST_CLEAN] $env:computername has $targets.count" iSCSI targets'
+
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv01:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; Write-Host "[POST_CLEAN] $env:computername has $targets.count" iSCSI portals'
+		python /home/jenkins-slave/tools/wsman.py -U https://$hyperv02:5986/wsman -u $WIN_USER -p $WIN_PASS 'powershell $targets = gwmi -ns root/microsoft/windows/storage -class msft_iscsitargetportal; Write-Host "[POST_CLEAN] $env:computername has $targets.count" iSCSI portals'
+
+		echo `date -u +%H:%M:%S` "Finished cleaning iSCSI targets and portals"
 set -e
