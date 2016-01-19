@@ -64,7 +64,7 @@ then
     screen -wipe
 fi
 
-if [ -d "/hoosm /ubuntu/.cache/pip/wheels" ]
+if [ -d "/home/ubuntu/.cache/pip/wheels" ]
 then
         sudo chown -R ubuntu.ubuntu /home/ubuntu/.cache/pip/wheels
 else
