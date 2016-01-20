@@ -162,8 +162,7 @@ else
 }
 Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 
-& easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip
-& pip install -U pip
+& easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip==7.1.2
 & pip install -U setuptools
 #& pip install -U wmi
 & pip install -U --pre "PyMI>=1.0.0.dev4" 
