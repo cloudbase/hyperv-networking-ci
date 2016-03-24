@@ -245,7 +245,7 @@ ExecRetry {
 ExecRetry {
     Write-Host "Content of $buildDir\compute-hyperv"
     Get-ChildItem $buildDir\compute-hyperv
-    pushd C:\OpenStack\build\openstack\compute-hyperv
+    pushd $buildDir\compute-hyperv
     & pip install $buildDir\compute-hyperv
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
     popd
