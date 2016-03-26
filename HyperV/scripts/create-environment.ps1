@@ -1,8 +1,16 @@
 Param(
     [Parameter(Mandatory=$true)][string]$devstackIP,
     [string]$branchName='master',
-    [string]$buildFor='openstack/networking-hyperv'
+    [string]$buildFor='openstack/networking-hyperv',
+    [string]$isDebug='no'
 )
+
+if ($isDebug -eq  'yes') {
+    Write-Host "Debug info:"
+    Write-Host "devstackIP: $devstackIP"
+    Write-Host "branchName: $branchName"
+    Write-Host "buildFor: $buildFor"
+}
 
 $projectName = $buildFor.split('/')[-1]
 
@@ -176,7 +184,6 @@ Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 
 & easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip
 & pip install -U setuptools
-#& pip install -U wmi
 & pip install -U --pre PyMI
 & pip install cffi
 & pip install numpy
@@ -207,17 +214,20 @@ function cherry_pick($commit) {
     $ErrorActionPreference = $eapSet
 }
 
-
-Write-Host "BuildDir is: $buildDir"
-Write-Host "ProjectName is: $projectName"
-Write-Host "Listing $buildDir parent directory"
-Get-ChildItem ( Get-Item $buildDir ).Parent.FullName
-Write-Host "Listing $buildDir before install"
-Get-ChildItem $buildDir
+if ($isDebug -eq  'yes') {
+    Write-Host "BuildDir is: $buildDir"
+    Write-Host "ProjectName is: $projectName"
+    Write-Host "Listing $buildDir parent directory"
+    Get-ChildItem ( Get-Item $buildDir ).Parent.FullName
+    Write-Host "Listing $buildDir before install"
+    Get-ChildItem $buildDir
+}
 
 ExecRetry {
-    Write-Host "Content of $buildDir\neutron"
-    Get-ChildItem $buildDir\neutron
+    if ($isDebug -eq  'yes') {
+        Write-Host "Content of $buildDir\neutron"
+        Get-ChildItem $buildDir\neutron
+    }
     pushd $buildDir\neutron
     & pip install $buildDir\neutron
     if ($LastExitCode) { Throw "Failed to install neutron from repo" }
@@ -225,8 +235,10 @@ ExecRetry {
 }
 
 ExecRetry {
-    Write-Host "Content of $buildDir\networking-hyperv"
-    Get-ChildItem $buildDir\networking-hyperv
+    if ($isDebug -eq  'yes') {
+        Write-Host "Content of $buildDir\networking-hyperv"
+        Get-ChildItem $buildDir\networking-hyperv
+    }
     pushd $buildDir\networking-hyperv
     & pip install $buildDir\networking-hyperv
     if ($LastExitCode) { Throw "Failed to install networking-hyperv from repo" }
@@ -234,8 +246,10 @@ ExecRetry {
 }
 
 ExecRetry {
-    Write-Host "Content of $buildDir\nova"
-    Get-ChildItem $buildDir\nova
+    if ($isDebug -eq  'yes') {
+        Write-Host "Content of $buildDir\nova"
+        Get-ChildItem $buildDir\nova
+    }
     pushd $buildDir\nova
     & pip install $buildDir\nova
     if ($LastExitCode) { Throw "Failed to install nova fom repo" }
@@ -243,8 +257,10 @@ ExecRetry {
 }
 
 ExecRetry {
-    Write-Host "Content of $buildDir\compute-hyperv"
-    Get-ChildItem $buildDir\compute-hyperv
+    if ($isDebug -eq  'yes') {
+        Write-Host "Content of $buildDir\compute-hyperv"
+        Get-ChildItem $buildDir\compute-hyperv
+    }
     pushd $buildDir\compute-hyperv
     & pip install $buildDir\compute-hyperv
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
