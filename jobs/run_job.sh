@@ -2,6 +2,7 @@
 jen_date=$(date +%d/%m/%Y-%H:%M)
 set +e
 /usr/local/src/hyperv-networking-ci/jobs/run_initialize.sh 2>&1
+export IS_DEBUG_JOB
 result_init=$?
 echo "$ZUUL_PROJECT;$ZUUL_BRANCH;$jen_date;$ZUUL_CHANGE;$ZUUL_PATCHSET;init;$result_init" >> /home/jenkins-slave/hyperv-networking-statistics.log
 echo "Init job finished with exit code $result_init"
