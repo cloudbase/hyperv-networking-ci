@@ -128,7 +128,7 @@ if ($isDebug -eq  'yes') {
     Get-ChildItem $buildDir
 }
 
-if ($buildFor -eq "openstack/networking-hyperv"){
+if ($buildFor -eq "openstack/networking-hyperv") {
     ExecRetry {
         GitClonePull "$buildDir\nova" "https://git.openstack.org/openstack/nova.git" $branchName
     }
@@ -141,7 +141,8 @@ if ($buildFor -eq "openstack/networking-hyperv"){
         GitClonePull "$buildDir\compute-hyperv" "https://git.openstack.org/openstack/compute-hyperv.git" $branchName
     }
     Get-ChildItem $buildDir
-}else{
+}
+else {
     Throw "Cannot build for project: $buildFor"
 }
 
