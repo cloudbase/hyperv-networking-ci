@@ -14,8 +14,9 @@ if [ $result_init -eq 0 ]; then
         result_tempest=$?
         echo "$ZUUL_PROJECT;$ZUUL_BRANCH;$jen_date;$ZUUL_CHANGE;$ZUUL_PATCHSET;run;$result_tempest" >> /home/jenkins-slave/networking-hyperv-statistics.log
         echo "Tempest job finished with exit code $result_tempest"
-     else
+    else
         echo "Init phase done, not running tests"
+        result_tempest=0
 fi
 
 jen_date=$(date +%d/%m/%Y-%H:%M)
