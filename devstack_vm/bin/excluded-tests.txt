@@ -7,14 +7,10 @@ tempest.api.compute.servers.test_attach_interfaces.AttachInterfacesTestJSON.test
 tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_hotplug_nic
 
 # See Tempest bug: https://bugs.launchpad.net/tempest/+bug/1363986
-tempest.scenario.test_security_groups_basic_ops.TestSecurityGroupsBasicOps.test_cross_tenant_traffic
+tempest.scenario.test_security_groups_basic_ops.TestSecurityGroupsBasicOps
 
 # Fails on DevStack. Not related to Hyper-V
 tempest.scenario.test_load_balancer_basic.TestLoadBalancerBasic.test_load_balancer_basic
-
-# Fails on DevStack. requires investigation.
-tempest.api.compute.admin.test_simple_tenant_usage.TenantUsagesTestJSON.test_get_usage_tenant
-tempest.api.compute.admin.test_simple_tenant_usage.TenantUsagesTestJSON.test_get_usage_tenant_with_non_admin_user
 
 #Bug in tempest looking for image including extension (.vhdx)
 tempest.api.orchestration.stacks.test_neutron_resources
@@ -63,7 +59,6 @@ tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_preserve_preexi
 tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_update_instance_port_admin_state
 tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_update_router_admin_state
 tempest.scenario.test_network_v6.TestGettingAddress
-tempest.scenario.test_security_groups_basic_ops.TestSecurityGroupsBasicOps
 #Need investigation - were failing on cinder ci as well
 tempest.scenario.test_volume_boot_pattern.TestVolumeBootPattern.test_volume_boot_pattern
 tempest.scenario.test_volume_boot_pattern.TestVolumeBootPatternV2.test_volume_boot_pattern
