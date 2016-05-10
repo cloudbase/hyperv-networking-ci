@@ -2,9 +2,6 @@
 
 basedir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . $basedir/config.sh
-
-project_name=$(basename $project)
-
 mkdir -p $TEMPEST_DIR
 
 pushd $basedir
