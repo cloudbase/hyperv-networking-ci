@@ -141,10 +141,8 @@ if ($buildFor -eq "openstack/networking-hyperv") {
     ExecRetry {
         GitClonePull "$buildDir\compute-hyperv" "https://git.openstack.org/openstack/compute-hyperv.git" $branchName
     }
-    if ($branchName -eq "master") {
-        ExecRetry {
-            GitClonePull "$buildDir\requirements" "https://git.openstack.org/openstack/requirements.git" $branchName
-        }
+    ExecRetry {
+        GitClonePull "$buildDir\requirements" "https://git.openstack.org/openstack/requirements.git" $branchName
     }
     Get-ChildItem $buildDir
 }
@@ -234,16 +232,13 @@ if ($isDebug -eq  'yes') {
     Get-ChildItem $buildDir
 }
 
-if ($branchName -eq 'master')
-{
-    ExecRetry {
-        pushd "$buildDir\requirements"
-        Write-Host "Installing Openstack/Requirements"
-        & pip install -c upper-constraints.txt -U pbr virtualenv httplib2 prettytable>=0.7 setuptools
-        & pip install -c upper-constraints.txt -U .
-        if ($LastExitCode) { Throw "Failed to install openstack/requirements from repo" }
-        popd
-    }
+ExecRetry {
+    pushd "$buildDir\requirements"
+    Write-Host "Installing Openstack/Requirements"
+    & pip install -c upper-constraints.txt -U pbr virtualenv httplib2 prettytable>=0.7 setuptools
+    & pip install -c upper-constraints.txt -U .
+    if ($LastExitCode) { Throw "Failed to install openstack/requirements from repo" }
+    popd
 }
 
 ExecRetry {
@@ -251,14 +246,10 @@ ExecRetry {
         Write-Host "Content of $buildDir\neutron"
         Get-ChildItem $buildDir\neutron
     }
+    Write-Host "Installing openstack/neutron..."
     pushd $buildDir\neutron
-    if ($branchName -eq 'master')
-    {
-        & update-requirements.exe --source $buildDir\requirements .
-        & pip install -c $buildDir\requirements\upper-constraints.txt -U .
-    } else {
-        & pip install $buildDir\neutron
-    }
+    & update-requirements.exe --source $buildDir\requirements .
+    & pip install -c $buildDir\requirements\upper-constraints.txt -U .
     if ($LastExitCode) { Throw "Failed to install neutron from repo" }
     popd
 }
@@ -269,13 +260,9 @@ ExecRetry {
         Get-ChildItem $buildDir\networking-hyperv
     }
     pushd $buildDir\networking-hyperv
-    if ($branchName -eq 'master')
-    {
-        & update-requirements.exe --source $buildDir\requirements .
-        & pip install -c $buildDir\requirements\upper-constraints.txt -U .
-    } else {
-        & pip install $buildDir\networking-hyperv
-    }
+    Write-Host "Installing openstack/networking-hyperv..."
+    & update-requirements.exe --source $buildDir\requirements .
+    & pip install -c $buildDir\requirements\upper-constraints.txt -U .
     if ($LastExitCode) { Throw "Failed to install networking-hyperv from repo" }
     popd
 }
@@ -286,13 +273,9 @@ ExecRetry {
         Get-ChildItem $buildDir\nova
     }
     pushd $buildDir\nova
-    if ($branchName -eq 'master')
-    {
-        & update-requirements.exe --source $buildDir\requirements .
-        & pip install -c $buildDir\requirements\upper-constraints.txt -U .
-    } else {
-        & pip install $buildDir\nova
-    }
+    Write-Host "Installing openstack/nova..."
+    & update-requirements.exe --source $buildDir\requirements .
+    & pip install -c $buildDir\requirements\upper-constraints.txt -U .
     if ($LastExitCode) { Throw "Failed to install nova fom repo" }
     popd
 }
@@ -303,13 +286,9 @@ ExecRetry {
         Get-ChildItem $buildDir\compute-hyperv
     }
     pushd $buildDir\compute-hyperv
-    if ($branchName -eq 'master')
-    {
-        & update-requirements.exe --source $buildDir\requirements .
-        & pip install -c $buildDir\requirements\upper-constraints.txt -U .
-    } else {
-        & pip install $buildDir\compute-hyperv
-    }
+    Write-Host "Installing openstack/compute-hyperv..."
+    & update-requirements.exe --source $buildDir\requirements .
+    & pip install -c $buildDir\requirements\upper-constraints.txt -U .
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
     popd
 }
