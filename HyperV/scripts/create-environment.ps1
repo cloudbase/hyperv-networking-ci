@@ -192,10 +192,6 @@ Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 & easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip
 & pip install -U setuptools
 & pip install -U --pre PyMI
-& pip install cffi
-& pip install numpy
-& pip install pycrypto
-& pip install amqp==1.4.9
 
 popd
 
@@ -288,7 +284,11 @@ ExecRetry {
     pushd $buildDir\compute-hyperv
     Write-Host "Installing openstack/compute-hyperv..."
     & update-requirements.exe --source $buildDir\requirements .
-    & pip install -c $buildDir\requirements\upper-constraints.txt -U .
+    if (($branchName -eq 'stable/liberty') -or ($branchName -eq 'stable/mitaka')) {
+        & pip install -c $buildDir\requirements\upper-constraints.txt -U .
+    } else {
+        & pip install -e $buildDir\compute-hyperv
+    }
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
     popd
 }
