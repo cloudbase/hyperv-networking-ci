@@ -145,6 +145,12 @@ if ($buildFor -eq "openstack/networking-hyperv") {
         GitClonePull "$buildDir\requirements" "https://git.openstack.org/openstack/requirements.git" $branchName
     }
     Get-ChildItem $buildDir
+    if (@("stable/mitaka", "stable/newton", "master") -contains $branchName.ToLower()) {
+        ExecRetry {
+            # os-win only exists on stable/mitaka, stable/newton, and master.
+            GitClonePull "$buildDir\os-win" "https://git.openstack.org/openstack/os-win.git" $branchName
+        }
+    }
 }
 else {
     Throw "Cannot build for project: $buildFor"
@@ -298,6 +304,20 @@ ExecRetry {
         & pip install -e $buildDir\compute-hyperv
     }
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
+    popd
+}
+
+ExecRetry {
+    if ($isDebug -eq  'yes') {
+        Write-Host "Content of $buildDir\os-win"
+        Get-ChildItem $buildDir\os-win
+    }
+    pushd $buildDir\os-win
+    if (@("stable/mitaka", "stable/newton", "master") -contains $branchName.ToLower()) {
+        # only install os-win on stable/mitaka, stable/newton, or master.
+        & pip install $buildDir\os-win
+    }
+    if ($LastExitCode) { Throw "Failed to install os-win fom repo" }
     popd
 }
 
