@@ -289,8 +289,8 @@ ExecRetry {
     if (($branchName -eq 'stable/liberty') -or ($branchName -eq 'stable/mitaka')) {
         & pip install -c $buildDir\requirements\upper-constraints.txt -U .
     } else {
-        # This patch fixes deadlock on shelve instances
-        git fetch https://git.openstack.org/openstack/compute-hyperv refs/changes/41/352841/1
+        # This patch fixes duplicate option use_multipath_io
+        git fetch https://git.openstack.org/openstack/compute-hyperv refs/changes/91/400091/1
         cherry_pick FETCH_HEAD
         & pip install -e $buildDir\compute-hyperv
     }
