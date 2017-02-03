@@ -38,7 +38,7 @@ then
     exit 1
 fi
 
-echo "Starting gerrit-git-prep"
+echo "Starting gerrit-gitprep"
 BUILD_DIR="C:/OpenStack/build"
 echo "BUILD_DIR=$BUILD_DIR"
 echo "ZUUL_PROJECT=$ZUUL_PROJECT"
@@ -88,7 +88,7 @@ then
   echo "Created $BUILD_DIR"
 fi
 echo "Content of $BUILD_DIR"
-ls -a "$BUILD_DIR" || exit_error "Build dir does not exist"
+ls -a "$BUILD_DIR" || exit_error "Build dir doesnt exist"
 
 echo "Removing $PROJECT_DIR if it exists"
 if [ -d "$PROJECT_DIR" ]
@@ -105,7 +105,7 @@ set -x
 
 if [[ ! -e .git ]]
 then
-    echo "pwd should be $PROJECT_DIR"
+    echo "cwd should be $PROJECT_DIR"
     pwd
     echo "Content of $PROJECT_DIR before git clone"
     ls -a
@@ -170,4 +170,3 @@ echo "Git log output:"
 git log -10 --pretty=format:"%h - %an, %ae, %ar : %s" 2>&1
 echo "Content of $PROJECT_DIR after finishing gerrit-git-prep"
 ls -a
-

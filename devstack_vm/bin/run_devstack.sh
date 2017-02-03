@@ -9,9 +9,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 set -x
 set -e
-#sudo ifconfig eth0 promisc up
 sudo ifconfig eth1 promisc up
-sudo dhclient -v eth1
 
 HOSTNAME=$(hostname)
 
@@ -22,17 +20,17 @@ firewall_manage_ports "" add disable ${TCP_PORTS[@]}
 # Add pip cache for devstack
 mkdir -p $HOME/.pip
 echo "[global]" > $HOME/.pip/pip.conf
-echo "trusted-host = dl.openstack.tld" >> $HOME/.pip/pip.conf
-echo "index-url = http://dl.openstack.tld:8080/cloudbase/CI/+simple/" >> $HOME/.pip/pip.conf
+echo "trusted-host = 10.20.1.8" >> $HOME/.pip/pip.conf
+echo "index-url = http://10.20.1.8:8080/cloudbase/CI/+simple/" >> $HOME/.pip/pip.conf
 echo "[install]" >> $HOME/.pip/pip.conf
-echo "trusted-host = dl.openstack.tld" >> $HOME/.pip/pip.conf
+echo "trusted-host = 10.20.1.8" >> $HOME/.pip/pip.conf
 
 sudo mkdir -p /root/.pip
 sudo cp $HOME/.pip/pip.conf /root/.pip/
 sudo chown -R root:root /root/.pip
 
 # Update packages to latest version
-sudo easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip
+sudo easy_install -U pip
 sudo pip install -U six
 sudo pip install -U kombu
 sudo pip install -U pbr
@@ -58,8 +56,10 @@ fi
 
 git config --global user.email hyper-v_ci@microsoft.com
 git config --global user.name 'Hyper-V CI'
-
 cd $tests_dir
+
+set +e
+
 # Apply patch "wait for port status to be ACTIVE"
 git fetch git://git.openstack.org/openstack/tempest refs/changes/49/383049/10
 git cherry-pick FETCH_HEAD
@@ -68,13 +68,15 @@ git cherry-pick FETCH_HEAD
 git fetch git://git.openstack.org/openstack/tempest refs/changes/28/384528/7
 git cherry-pick FETCH_HEAD
 
+set -e
+
 cd /home/ubuntu/devstack
 git pull
 
-#Fix for unproper ./unstack.sh
+./unstack.sh
+
 screen_pid=$(ps auxw | grep -i screen | grep -v grep | awk '{print $2}')
-if [[ -n $screen_pid ]] 
-then
+if [[ -n $screen_pid ]]; then
     kill -9 $screen_pid
 fi
 
@@ -91,7 +93,7 @@ fi
 
 rotate_log $STACK_LOG $STACK_ROTATE_LIMIT
 
-sed -i "s#PIP_GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py#PIP_GET_PIP_URL=http://dl.openstack.tld/get-pip.py#g" /home/ubuntu/devstack/tools/install_pip.sh
+sed -i "s#PIP_GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py#PIP_GET_PIP_URL=http://10.20.1.14:8080/get-pip.py#g" /home/ubuntu/devstack/tools/install_pip.sh
 
 #Requested by Claudiu Belu, temporary hack:
 sudo pip install -U /opt/stack/networking-hyperv

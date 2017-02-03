@@ -1,6 +1,14 @@
 source /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
 source /home/jenkins-slave/tools/keystonerc_admin
-source /usr/local/src/neutron-ci/jobs/library.sh
+source /usr/local/src/hyperv-networking-ci-2016/jobs/library.sh
+
+echo "devstack_params file:"
+ls -lia /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
+echo "devstack params loaded from /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt :"
+cat /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
+echo "VM ID: $VMID"
+echo "VMs matching that VM ID:"
+nova list | grep "$VMID"
 
 set +e
 
@@ -15,19 +23,12 @@ if [ "$IS_DEBUG_JOB" != "yes" ]
         echo "Detaching and cleaning Hyper-V node 2"
         teardown_hyperv $hyperv02 $WIN_USER $WIN_PASS
         echo "$jen_date;$ZUUL_PROJECT;$ZUUL_BRANCH;$ZUUL_CHANGE;$ZUUL_PATCHSET;$hyperv02;FREE" >> /home/jenkins-slave/hypervnodes.log
-
-        echo "Releasing devstack floating IP"
-        nova remove-floating-ip "$VMID" "$FLOATING_IP"
         
-            echo "Removing devstack VM"
+        echo "Removing devstack VM"
         nova delete "$VMID"
-        /usr/local/src/neutron-ci/vlan_allocation.py -r $VMID
-        
-            echo "Deleting devstack floating IP"
-        nova floating-ip-delete "$FLOATING_IP"
-        rm -f /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
+        /usr/local/src/hyperv-networking-ci-2016/vlan_allocation.py -r $VMID
 
-      
+        rm -f /home/jenkins-slave/runs/devstack_params.$ZUUL_UUID.txt
 fi
 
 set -e

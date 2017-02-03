@@ -2,6 +2,7 @@
 
 . "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\config.ps1"
 . "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\utils.ps1"
+. "C:\OpenStack\hyperv-networking-ci\HyperV\scripts\iscsi_utils.ps1"
 
 # end Loading config
 
@@ -51,14 +52,17 @@ Write-Host "Clearing any VMs that might have been left."
 Get-VM | where {$_.State -eq 'Running' -or $_.State -eq 'Paused'} | Stop-Vm -Force
 Remove-VM * -Force
 
+destroy_planned_vms
+cleanup_iscsi_targets
+
 Write-Host "Cleaning the build folder."
-Remove-Item -Recurse -Force $openstackDir\build\*
+Remove-Item -Recurse -Force $buildDir\*
 Write-Host "Cleaning the virtualenv folder."
 Remove-Item -Recurse -Force $virtualenv
 Write-Host "Cleaning the logs folder."
-Remove-Item -Recurse -Force $openstackDir\Log\*
+Remove-Item -Recurse -Force $openstackLogs\*
 Write-Host "Cleaning the config folder."
-Remove-Item -Recurse -Force $openstackDir\etc\*
+Remove-Item -Recurse -Force $configDir\*
 Write-Host "Cleaning the Instances folder."
 Remove-Item -Recurse -Force $openstackDir\Instances\*
 Write-Host "Cleaning eventlog"
