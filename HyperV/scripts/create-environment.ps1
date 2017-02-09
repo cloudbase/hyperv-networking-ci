@@ -190,7 +190,7 @@ else
 Add-Content "$env:APPDATA\pip\pip.ini" $pip_conf_content
 
 $ErrorActionPreference = "Continue"
-#& easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip
+& easy_install -f http://dl.openstack.tld:8080/cloudbase/CI/+simple/pip pip
 & pip install setuptools
 & pip install -U --pre PyMI
 $ErrorActionPreference = "Stop"
