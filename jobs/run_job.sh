@@ -4,7 +4,7 @@ export IS_DEBUG_JOB
 set +e
 /usr/local/src/hyperv-networking-ci-2016/jobs/run_initialize.sh 2>&1
 result_init=$?
-echo "$ZUUL_PROJECT;$ZUUL_BRANCH;$jen_date;$ZUUL_CHANGE;$ZUUL_PATCHSET;init;$result_init" >> /home/jenkins-slave/hyperv-networking-statistics.log
+echo "$ZUUL_PROJECT;$ZUUL_BRANCH;$jen_date;$BUILD_NUMBER;$ZUUL_CHANGE;$ZUUL_PATCHSET;init;$result_init" >> /home/jenkins-slave/networking-hyperv-statistics.log
 echo "Init job finished with exit code $result_init"
 
 if [ $result_init -eq 0 ]; then
@@ -15,7 +15,7 @@ if [ $result_init -eq 0 ]; then
     else
         /usr/local/src/hyperv-networking-ci-2016/jobs/run_tests.sh 2>&1
         result_tempest=$?
-        echo "$ZUUL_PROJECT;$ZUUL_BRANCH;$jen_date;$ZUUL_CHANGE;$ZUUL_PATCHSET;run;$result_tempest" >> /home/jenkins-slave/hyperv-networking-statistics.log
+        echo "$ZUUL_PROJECT;$ZUUL_BRANCH;$jen_date;$BUILD_NUMBER;$ZUUL_CHANGE;$ZUUL_PATCHSET;run;$result_tempest" >> /home/jenkins-slave/networking-hyperv-statistics.log
         echo "Tempest job finished with exit code $result_tempest"
     fi
 fi
