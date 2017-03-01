@@ -304,12 +304,16 @@ ExecRetry {
         Get-ChildItem $buildDir\os-win
     }
     pushd $buildDir\os-win
+
     if (@("stable/mitaka", "stable/newton", "stable/ocata", "master") -contains $branchName.ToLower()) {
         # only install os-win on stable/mitaka, stable/newton, stable/ocata or master.
-        & pip install $buildDir\os-win
-    }
-    if ($LastExitCode) { Throw "Failed to install os-win fom repo" }
-    popd
+        Write-Host "Installing OpenStack/os-win..."
+        & update-requirements.exe --source $buildDir\requirements .
+        sls -n os-win $buildDir\requirements\upper-constraints.txt | select line > $buildDir\requirements\upper-constraints-oswin.txt
+        & pip install -c $buildDir\requirements\upper-constraints-oswin.txt -U .
+        if ($LastExitCode) { Throw "Failed to install os-win fom repo" }
+            popd
+        }
 }
 
 # Note: be careful as WMI queries may return only one element, in which case we
