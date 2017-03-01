@@ -308,9 +308,10 @@ ExecRetry {
     if (@("stable/mitaka", "stable/newton", "stable/ocata", "master") -contains $branchName.ToLower()) {
         # only install os-win on stable/mitaka, stable/newton, stable/ocata or master.
         Write-Host "Installing OpenStack/os-win..."
+
         & update-requirements.exe --source $buildDir\requirements .
-        sls -n os-win $buildDir\requirements\upper-constraints.txt | select line > $buildDir\requirements\upper-constraints-oswin.txt
-        & pip install -c $buildDir\requirements\upper-constraints-oswin.txt -U .
+        & edit-constraints.exe $buildDir\requirements\upper-constraints.txt -- os-win ""
+        & pip install -c $buildDir\requirements\upper-constraints.txt -U .
         if ($LastExitCode) { Throw "Failed to install os-win fom repo" }
             popd
         }
