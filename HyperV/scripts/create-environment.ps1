@@ -286,9 +286,6 @@ ExecRetry {
     if (($branchName -eq 'stable/liberty') -or ($branchName -eq 'stable/mitaka')) {
         & pip install -c $buildDir\requirements\upper-constraints.txt -U .
     } else {
-        # This patch fixes duplicate option use_multipath_io
-        git fetch https://git.openstack.org/openstack/compute-hyperv refs/changes/91/400091/1
-        cherry_pick FETCH_HEAD
         & pip install -e $buildDir\compute-hyperv
     }
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
@@ -309,9 +306,6 @@ ExecRetry {
     if ($LastExitCode) { Throw "Failed to install os-win fom repo" }
     popd
 }
-
-# Temporary fix for os-win
-pip install setuptools==33.1.1 oslo.log==3.23.0
 
 # Note: be careful as WMI queries may return only one element, in which case we
 # won't get an array. To make it easier, we can just make sure we always have an
