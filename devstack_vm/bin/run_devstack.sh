@@ -65,7 +65,7 @@ git fetch git://git.openstack.org/openstack/tempest refs/changes/49/383049/13
 git cherry-pick FETCH_HEAD
 
 # Apply patch "Adds protocol options for test_cross_tenant_traffic"
-git fetch git://git.openstack.org/openstack/tempest refs/changes/28/384528/9
+git fetch git://git.openstack.org/openstack/tempest refs/changes/28/384528/10
 git cherry-pick FETCH_HEAD
 
 set -e
