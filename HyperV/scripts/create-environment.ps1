@@ -286,7 +286,7 @@ ExecRetry {
     if (($branchName -eq 'stable/liberty') -or ($branchName -eq 'stable/mitaka')) {
         & pip install -c $buildDir\requirements\upper-constraints.txt -U .
     } else {
-        & pip install -e $buildDir\compute-hyperv
+        & pip install -c $buildDir\requirements\upper-constraints.txt -e .
     }
     if ($LastExitCode) { Throw "Failed to install compute-hyperv from repo" }
     popd
