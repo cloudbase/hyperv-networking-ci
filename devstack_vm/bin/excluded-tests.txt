@@ -9,3 +9,4 @@ tempest.scenario.test_security_groups_basic_ops.TestSecurityGroupsBasicOps
 tempest.scenario.test_volume_boot_pattern.TestVolumeBootPattern.test_volume_boot_pattern
 tempest.scenario.test_volume_boot_pattern.TestVolumeBootPatternV2.test_volume_boot_pattern
 tempest.api.compute.admin.test_live_migration.LiveBlockMigration
+tempest.api.compute.admin.test_server_diagnostics
